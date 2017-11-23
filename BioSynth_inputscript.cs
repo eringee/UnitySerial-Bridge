@@ -1,29 +1,11 @@
-﻿/******************************************************
-copyright Sofian Audry and Erin Gee 2017
-
-Author Sofian Audry
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License version 3 as published by
-the Free Software Foundation.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    For more details: <http://www.gnu.org/licenses/>.
-
-******************************************************/
-
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.IO.Ports;
 using System.Threading;
 
-public class biodata_inputscript : MonoBehaviour {
+public class BioSynth_inputscript : MonoBehaviour {
 
     public string port = "COM1";   //Change this to suit the name of your port.  Can be done in the editor.
     public int baudRate = 115200;  //Change this to suit your baudrate.  Can be done in the editor
@@ -32,8 +14,8 @@ public class biodata_inputscript : MonoBehaviour {
 
     Thread myThread;
 
-	//You can modify and add to these as you like. They are just the variables, in order, that are to be read 
-	//from the serialPort of your microcontroller. 
+	//You can modify/add to these as you like, they are just the variables, in order, that are coming from the serialPort
+	//of your microcontroller, separated by Tabs. 
 
 	public float temperature = 0;
 	public float heart = 0;
@@ -42,6 +24,7 @@ public class biodata_inputscript : MonoBehaviour {
 	public float bpma  = 0;
 	public float gsr   = 0;
 
+		
 	// Use this for initialization
 	void Start () {
         stream = new SerialPort(port, baudRate);
@@ -95,7 +78,7 @@ public class biodata_inputscript : MonoBehaviour {
                 string[] values = line.Split('\t');
                 int arg = 0;
 				temperature = float.Parse(values[arg++]);
-				heart = float.Parse(values[arg++]);
+                heart = float.Parse(values[arg++]);
                 bpm = float.Parse(values[arg++]);
                 bvpa = float.Parse(values[arg++]);
                 bpma = float.Parse(values[arg++]);
