@@ -28,11 +28,11 @@ You will see that there are several public variables that correspond to your inc
 
 You may get the following error:
 
-'error CS0234: The type or namespace name "Ports" does not exist in the namespace "System.IO". Are you missing an assembly reference?'
+`error CS0234: The type or namespace name 'Ports' does not exist in the namespace 'System.IO'. Are you missing an assembly reference?`
 
 Solution:
 
-Yes need to enable .Net 2.0 in the project settings.  Sometimes this resets when you install a new version of Unity.  Just go click the box again.
+You need to enable .Net 2.0 in the project settings.  Sometimes this resets when you install a new version of Unity.  Just go click the box again.
 
 # AUTHOR
 
