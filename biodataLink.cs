@@ -23,7 +23,7 @@ using System;
 using System.IO.Ports;
 using System.Threading;
 
-public class BioData_inputscript : MonoBehaviour {
+public class biodataLink : MonoBehaviour {
 
     public string port = "COM1";   //Change this to suit the name of your port.  Can be done in the editor.
     public int baudRate = 115200;  //Change this to suit your baudrate.  Can be done in the editor
@@ -34,7 +34,7 @@ public class BioData_inputscript : MonoBehaviour {
 
 	//You can modify and add to these as you like. They are just the variables, in order, that are to be read 
 	//from the serialPort of your microcontroller. 
-
+    public float temperature = 0;
     public float heart = 0;
 	public float bpm   = 0;
 	public float bvpa  = 0;
