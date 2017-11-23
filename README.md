@@ -14,13 +14,13 @@ This code was tested originally on Unity 2017.2.0f3
 
 # SET UP
 
-Make sure that the correct platform is selected in File | Build Settings: "PC, Mac & Linux standalone".
+1. Make sure that the correct platform is selected in File | Build Settings: "PC, Mac & Linux standalone".
 
-Then go to Edit | Project Settings | Player | PC, Mac & Linux Standalone settings | Other Settings | Optimization | API Compatibility Level and select ".Net 2.0"
+2. Go to Edit | Project Settings | Player | PC, Mac & Linux Standalone settings | Other Settings | Optimization | API Compatibility Level and select ".Net 2.0"
 
 In some older version of Unity, you would find this option in: File | Build Settings | Optimization | API Compatibility Level: .Net 2.0
 
-Now that you have prepped the project, create an empty GameObject and add the SerialBridge script to the object. 
+3. Create an empty GameObject and add the SerialBridge script to the object. 
 
 You will see that there are several public variables that correspond to your incoming Arduino data.  You may add, rename, and change the type of variable as you like.
 
@@ -28,10 +28,11 @@ You will see that there are several public variables that correspond to your inc
 
 You may get the following error:
 
-error CS0234: The type or namespace name `Ports' does not exist in the namespace `System.IO'. Are you missing an assembly reference?
+'error CS0234: The type or namespace name "Ports" does not exist in the namespace "System.IO". Are you missing an assembly reference?'
+
 Solution:
 
-Yes you really needed to enable .Net 2.0 in the project settings.  Sometimes this resets when you install a new version of Unity.  Just go click the box again.
+Yes need to enable .Net 2.0 in the project settings.  Sometimes this resets when you install a new version of Unity.  Just go click the box again.
 
 # AUTHOR
 
