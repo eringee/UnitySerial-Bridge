@@ -6,7 +6,7 @@ This code was originally created for use with Erin Gee's [biodataDuo](https://gi
 
 # WINDOWS SYSTEM 
 
-This code was made in order to avoid the Unity bug wherein the serial chokes in Windows OS
+This code was made in order to avoid the Unity bug wherein the serial chokes in Windows OS, but it has been tested on Mac OS
 
 # UNITY
 
@@ -22,11 +22,17 @@ In some older version of Unity, you would find this option in: File | Build Sett
 
 3. Create an empty GameObject and add the SerialBridge script to the object. 
 
-You will see that there are several public variables that correspond to your incoming Arduino data.  You may add, rename, and change the type of variable as you like.
+4. Verify the name of the serial port you would like to access and update the public variable field "Port" on your object.
+
+5. Verify your baudrate and modify the public variable input field "Baudrate"
+
+# DATA AGREEMENT
+
+You may add, rename, and change the type of variable as you like, so long as they correspond to tab separated values in your Arduino serial output.
 
 # Error CS0234 Ports does not exist in the namespace
 
-You may get the following error:
+You may at some point get the following error:
 
 `error CS0234: The type or namespace name 'Ports' does not exist in the namespace 'System.IO'. Are you missing an assembly reference?`
 
