@@ -16,7 +16,7 @@ This code was tested originally on Unity 2017.2.0f3
 
 1. Make sure that the correct platform is selected in File | Build Settings: "PC, Mac & Linux standalone".
 
-2. Go to Edit | Project Settings | Player | PC, Mac & Linux Standalone settings | Other Settings | Optimization | API Compatibility Level and select ".Net 2.0"
+2. Go to Edit | Project Settings | Player | Other Settings | API Compatibility Level and select ".Net 2.0"
 
 In some older version of Unity, you would find this option in: File | Build Settings | Optimization | API Compatibility Level: .Net 2.0
 
