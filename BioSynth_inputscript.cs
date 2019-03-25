@@ -1,95 +1,120 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.IO.Ports;
 using System.Threading;
 
-public class BioSynth_inputscript : MonoBehaviour {
+// this scrips was last tested on Mac using 2017.3.1 with High Sierra
 
-    public string port = "COM1";   //Change this to suit the name of your port.  Can be done in the editor.
-    public int baudRate = 115200;  //Change this to suit your baudrate.  Can be done in the editor
+// Feel free to update the file to let others know if it is still working in later versions of Unity or other OS :)
 
-    SerialPort stream;
+public class Serial_inputscript : MonoBehaviour {
+        
+	SerialPort serial;
+	private string portName;     //variable for name of serial port
+	public int baudRate = 9600;  //Change this to suit your baudrate.  Can be done in the editor
+	
+	Thread myThread;
 
-    Thread myThread;
-
-	//You can modify/add to these as you like, they are just the variables, in order, that are coming from the serialPort
+	//You can name or add to these variables as you like, they are just the variables, in order, that are coming from the serialPort
 	//of your microcontroller, separated by Tabs. 
 
-	public float temperature = 0;
-	public float heart = 0;
-	public float bpm   = 0;
-	public float bvpa  = 0;
-	public float bpma  = 0;
-	public float gsr   = 0;
+	public float arduinoVal1; 
+	public float arduinoVal2;  
+	public float arduinoVal3;  
 
-		
-	// Use this for initialization
+	// Initialization
 	void Start () {
-        stream = new SerialPort(port, baudRate);
 
-        try
-        {
-            stream.Open();
+		string portName = GetPortName(); //Figure out which serial port the microcontroller is attached to
 
-            Debug.Log("Opened stream: " + stream);
-        }
-        catch (System.Exception e)
-        {
-            Debug.Log("Could not open serial port: " + e.Message);
+		if (portName == "") {
+			print ("Error: Couldn't find serial port.");
+			return;
+		} else {
+	       Debug.Log("Using Serial:" + portName);
+		}
 
-        }
+		serial = new SerialPort(portName, baudRate);  //initialize serial port
+		serial.Open();
+		serial.ReadTimeout = 10;
 
-        // Start thread.
-        myThread = new Thread(new ThreadStart(GetArduino));
-        myThread.Start();
-    }
+		// Start thread.
+		myThread = new Thread(new ThreadStart(GetArduino));
+		myThread.Start();
+	} 
 
-    void Cleanup()
-    {
-        if (stream != null)
-        {
-            if (stream.IsOpen)
-                stream.Close();
-        }
+	// Read data from the Arduino
+	private void GetArduino(){
+		while (myThread.IsAlive)
+		{
+			string line = serial.ReadLine();
 
-        stream = null;
-    }
+			try
+			{
+				string[] values = line.Split('\t');  //using tab separated values.  See comments for Arduino code.
+				int arg = 0;                         
+				arduinoVal1 = float.Parse(values[arg++]);  //Serial.print(mySensor1); Serial.print("\t")
+				arduinoVal2 = float.Parse(values[arg++]);  //Serial.print(mySensor2); Serial.print("\t")
+				arduinoVal3 = float.Parse(values[arg++]);  //Serial.println(mySensor3);  
+			}
+			catch (Exception e)      // this is needed because the Arduino throws weird artifacts sometimes
+			{
+				Debug.Log(e.Message);
+			}
+		}
+	}
 
-    private void OnApplicationQuit()
-    {
-        Cleanup();
-    }
+	string GetPortName() {       
 
-    public void OnDestroy()
-    {
-        Cleanup();
-    }
+		string[] portNames;
 
-    private void GetArduino()
-    {
-        while (myThread.IsAlive)
-        {
-            string line = stream.ReadLine();
+		switch (Application.platform) {
 
-            try
-            {
-                string[] values = line.Split('\t');
-                int arg = 0;
-				temperature = float.Parse(values[arg++]);
-                heart = float.Parse(values[arg++]);
-                bpm = float.Parse(values[arg++]);
-                bvpa = float.Parse(values[arg++]);
-                bpma = float.Parse(values[arg++]);
-                gsr = float.Parse(values[arg++]);
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e.Message);
-            }
-        }
-    }
+		case RuntimePlatform.OSXPlayer:
+		case RuntimePlatform.OSXEditor:
+		case RuntimePlatform.LinuxPlayer:
+
+			portNames = System.IO.Ports.SerialPort.GetPortNames();
+
+			if (portNames.Length ==0) {
+				portNames = System.IO.Directory.GetFiles("/dev/");                
+			}
+
+			foreach (string portName in portNames) {                                
+				if (portName.StartsWith("/dev/tty.usb") || portName.StartsWith("/dev/ttyUSB")) return portName;
+			}                
+			return ""; 
+
+		default: // Windows
+
+			portNames = System.IO.Ports.SerialPort.GetPortNames();
+
+			if (portNames.Length > 0) return portNames[0];
+			else return "COM3";
+		}
+	}
+
+	// close the serial ports if quitting program
+	private void OnApplicationQuit()
+	{
+		Cleanup();
+	}
+
+	public void OnDestroy()
+	{
+		Cleanup();
+	}
+
+	void Cleanup()  // close the serial ports if there is no Arduino activity
+	{
+		if (serial != null)
+		{
+			if (serial.IsOpen)
+				serial.Close();
+		}
+		serial = null;
+	}
 
 }
-
