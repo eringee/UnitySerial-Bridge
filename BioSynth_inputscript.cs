@@ -1,28 +1,24 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using System;
 using System.IO.Ports;
 using System.Threading;
 
-// this scrips was last tested on Mac using 2017.3.1 with High Sierra
+public class BioSynth_inputscript : MonoBehaviour {
 
-// Feel free to update the file to let others know if it is still working in later versions of Unity or other OS :)
-
-public class Serial_inputscript : MonoBehaviour {
-        
-	SerialPort serial;
 	private string portName;     //variable for name of serial port
 	public int baudRate = 9600;  //Change this to suit your baudrate.  Can be done in the editor
-	
+
+	SerialPort serial;
+
 	Thread myThread;
 
-	//You can name or add to these variables as you like, they are just the variables, in order, that are coming from the serialPort
+	//You can modify/add to these as you like, they are just the variables, in order, that are coming from the serialPort
 	//of your microcontroller, separated by Tabs. 
 
-	public float arduinoVal1; 
-	public float arduinoVal2;  
-	public float arduinoVal3;  
+	public float heart = 0; 
+	public float bpm   = 0;  
+	public float bvpa  = 0;  
+	public float bpma  = 0; 
+	public float gsr   = 0;  
 
 	// Initialization
 	void Start () {
@@ -55,9 +51,11 @@ public class Serial_inputscript : MonoBehaviour {
 			{
 				string[] values = line.Split('\t');  //using tab separated values.  See comments for Arduino code.
 				int arg = 0;                         
-				arduinoVal1 = float.Parse(values[arg++]);  //Serial.print(mySensor1); Serial.print("\t")
-				arduinoVal2 = float.Parse(values[arg++]);  //Serial.print(mySensor2); Serial.print("\t")
-				arduinoVal3 = float.Parse(values[arg++]);  //Serial.println(mySensor3);  
+				heart = float.Parse(values[arg++]);  //Serial.print(heartSignal); Serial.print("\t")
+				bpm = float.Parse(values[arg++]);    //Serial.print(bpmSignal); Serial.print("\t")
+				bvpa = float.Parse(values[arg++]);   //Serial.print(bvpaSignal); Serial.print("\t")
+				bpma = float.Parse(values[arg++]);   //Serial.print(bpmaSignal); Serial.print("\t")
+				gsr = float.Parse(values[arg++]);    //Serial.println(gsrSignal); 
 			}
 			catch (Exception e)      // this is needed because the Arduino throws weird artifacts sometimes
 			{
