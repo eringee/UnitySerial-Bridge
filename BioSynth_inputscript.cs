@@ -1,130 +1,69 @@
-using UnityEngine;
-using System;
-using System.IO.Ports;
-using System.Threading;
+//BioData Library
+#include <Heart.h>
+#include <Respiration.h>
+#include <SkinConductance.h>
 
-public class BioSynth_inputscript : MonoBehaviour
-{
+//declare variables for storing biodata
+float heartSig;
+float heartAmp;
+float heartBPM;
+float heartBPMchange;
+float scSig;
 
-    private string portName;     //variable for name of serial port
-    public int baudRate = 9600;  //Change this to suit your baudrate.  Can be done in the editor
+//declare and initialize biodata pins
+SkinConductance sc(A6);
+Heart heart(A8);
 
-    SerialPort serial;
+//reference LEDS for BioData visualization
+const int ledGSR = 4;
+const int ledHeart = 5;
 
-    Thread myThread;
+//variables for attenuating data flow to serial port 
+unsigned long lastMillis = 0;
+int serialDelay = 20; // is is important that data only flow at a maximum of 50 Hz 
 
-    //You can modify/add to these as you like, they are just the variables, in order, that are coming from the serialPort
-    //of your microcontroller, separated by Tabs. 
+void setup() {
+  Serial.begin(9600);
+}
 
-    public float heart = 0;
-    public float bpm = 0;
-    public float bvpa = 0;
-    public float bpma = 0;
-    public float gsr = 0;
+void loop() {
+  
+  //update biosensors
+  heart.update();
+  sc.update();
+ 
+  //get data from biosensors
+  heartSig = heart.getNormalized();
+  heartBPM = heart.getBPM();
+  heartAmp = heart.amplitudeChange();
+  heartBPMchange = heart.bpmChange();
+  scSig = sc.getSCR();
 
-    // Initialization
-    void Start()
-    {
+  //map data to LEDs
+  int heartSigLED = heartSig*100;
+  int heartOutput = map(heartSigLED,0,100,0,255);
+  analogWrite(ledHeart, heartOutput);
+  
+  int scSigLED = scSig*100;
+  int scOutput = map(scSigLED,0,100,0,255);
+  analogWrite(ledGSR, scOutput);
 
-        string portName = GetPortName(); //Figure out which serial port the microcontroller is attached to
+  //if threshold is passed, send data to serial port
+  if (abs(millis() - lastMillis) > serialDelay) {
+    lastMillis = millis();
+    Serial.print(heartSig);
+    Serial.print("\t");
 
-        if (portName == "")
-        {
-            print("Error: Couldn't find serial port.");
-            return;
-        }
-        else
-        {
-            Debug.Log("Using Serial:" + portName);
-        }
+    Serial.print(heartBPM);
+    Serial.print("\t");
 
-        serial = new SerialPort(portName, baudRate);  //initialize serial port
-        serial.Open();
-        serial.ReadTimeout = 100;
+    Serial.print(heartBPMchange);
+    Serial.print("\t");
 
-        // Start thread.
-        myThread = new Thread(new ThreadStart(GetArduino));
-        myThread.Start();
-    }
+    Serial.print(heartAmp);
+    Serial.print("\t");
 
-    // Read data from the Arduino
-    private void GetArduino()
-    {
-        while (myThread.IsAlive)
-        {
-            string line = serial.ReadLine();
-
-            try
-            {
-                string[] values = line.Split('\t');  //using tab separated values.  See comments for Arduino code.
-                int arg = 0;
-                heart = float.Parse(values[arg++]);  //Serial.print(heartSignal); Serial.print("\t")
-                bpm = float.Parse(values[arg++]);    //Serial.print(bpmSignal); Serial.print("\t")
-                bvpa = float.Parse(values[arg++]);   //Serial.print(bvpaSignal); Serial.print("\t")
-                bpma = float.Parse(values[arg++]);   //Serial.print(bpmaSignal); Serial.print("\t")
-                gsr = float.Parse(values[arg++]);    //Serial.println(gsrSignal); 
-                Debug.Log(heart);
-            }
-            catch (Exception e)      // this is needed because the Arduino throws weird artifacts sometimes
-            {
-                Debug.Log(e.Message);
-            }
-        }
-    }
-
-    string GetPortName()
-    {
-
-        string[] portNames;
-
-        switch (Application.platform)
-        {
-
-            case RuntimePlatform.OSXPlayer:
-            case RuntimePlatform.OSXEditor:
-            case RuntimePlatform.LinuxPlayer:
-
-                portNames = SerialPort.GetPortNames();
-
-                if (portNames.Length == 0)
-                {
-                    portNames = System.IO.Directory.GetFiles("/dev/");
-                }
-
-                foreach (string portName in portNames)
-                {
-                    if (portName.StartsWith("/dev/tty.usb") || portName.StartsWith("/dev/ttyUSB")) return portName;
-                }
-                return "";
-
-            default: // Windows
-
-                portNames = SerialPort.GetPortNames();
-
-                if (portNames.Length > 0) return portNames[0];
-                else return "COM3";
-        }
-    }
-
-    // close the serial ports if quitting program
-    private void OnApplicationQuit()
-    {
-        Cleanup();
-    }
-
-    public void OnDestroy()
-    {
-        Cleanup();
-    }
-
-    void Cleanup()  // close the serial ports if there is no Arduino activity
-    {
-        if (serial != null)
-        {
-            if (serial.IsOpen)
-                serial.Close();
-        }
-        serial = null;
-    }
+    Serial.println(scSig);   
+  } 
 
 }
